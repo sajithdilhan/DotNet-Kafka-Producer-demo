@@ -12,7 +12,7 @@ do
 {
     Console.WriteLine("Enter message");
     input = Console.ReadLine() ?? string.Empty;
-    producer.SendMessage(input);
+    await producer.SendMessageAsync(input);
 }
 while (!input.Equals("Exit", StringComparison.CurrentCultureIgnoreCase));
 

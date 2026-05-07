@@ -1,49 +1,44 @@
 ﻿using Confluent.Kafka;
 
-namespace KafkaProducer
+namespace KafkaProducer;
+
+internal class ProducerService
 {
-    internal class ProducerService
+    public ProducerService() { }
+
+    private readonly ProducerConfig config = new ProducerConfig
     {
-        public ProducerService() { }
+        BootstrapServers = "localhost:9092"
+    };
 
-        private readonly ProducerConfig config = new ProducerConfig
+    private readonly string topic = "kafkaproducer.samplemessage";
+    public async Task SendMessageAsync(string message)
+    {
+        using (var producer = new ProducerBuilder<Null, string>(config).Build())
         {
-            BootstrapServers = "localhost:9092"
-        };
-
-        private readonly string topic = "kafkaproducer.samplemessage";
-        public void SendMessage(string message)
-        {
-            using (var producer = new ProducerBuilder<Null, string>(config).Build())
+            try
             {
-                try
-                {
-                    producer.ProduceAsync(topic, new Message<Null, string> { Value = message })
-                        .GetAwaiter()
-                        .GetResult();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Something went wrong: {e}");
-                }
+                await producer.ProduceAsync(topic, new Message<Null, string> { Value = message });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Something went wrong: {e}");
             }
         }
+    }
 
-        public void SendMessage()
+    public async Task SendMessageAsync()
+    {
+        using (var producer = new ProducerBuilder<Null, Person>(config).Build())
         {
-            using (var producer = new ProducerBuilder<Null, Person>(config).Build())
+            try
             {
-                try
-                {
-                    Person person = new Person { Age = 23, Id = 1, Name = "Sajith", Title = "Mr" };
-                    producer.ProduceAsync(topic, new Message<Null, Person> { Value =  person })
-                        .GetAwaiter()
-                        .GetResult();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Something went wrong: {e}");
-                }
+                Person person = new() { Age = 23, Id = 1, Name = "Sajith", Title = "Mr" };
+                await producer.ProduceAsync(topic, new Message<Null, Person> { Value =  person });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Something went wrong: {e}");
             }
         }
     }
